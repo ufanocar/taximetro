@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TakeUs · Ruta / Contrato</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-50 text-gray-800">
+<div class="max-w-3xl mx-auto p-6">
+
+  <section class="bg-white p-6 rounded-2xl shadow space-y-6">
+
+    <h1 class="text-xl font-semibold text-center">
+      Datos del contrato de arrendamiento VTC
+    </h1>
+
+    <!-- ARRENDADOR -->
+    <div class="space-y-1 text-sm">
+      <h2 class="font-medium">Identificación del arrendador (empresa VTC)</h2>
+      <p><strong>Nombre / Razón social:</strong> <span id="empresaNombre"></span></p>
+      <p><strong>NIF / CIF:</strong> <span id="empresaCIF"></span></p>
+    </div>
+
+    <!-- CLIENTE -->
+    <div class="space-y-1 text-sm">
+      <h2 class="font-medium">Identificación del cliente (arrendatario)</h2>
+      <p><strong>Nombre / Razón social:</strong> <span id="clienteNombre"></span></p>
+      <p><strong>Documento identificativo:</strong> <span id="clienteDoc"></span></p>
+    </div>
+
+    <!-- CONTRATO -->
+    <div class="space-y-1 text-sm">
+      <h2 class="font-medium">Datos del contrato</h2>
+      <p><strong>Lugar de contratación:</strong> <span id="lugarContrato"></span></p>
+      <p><strong>Fecha de contratación:</strong> <span id="fechaContrato"></span></p>
+      <p><strong>Hora de contratación / inicio:</strong> <span id="horaContrato"></span></p>
+    </div>
+
+    <!-- SERVICIO -->
+    <div class="space-y-1 text-sm">
+      <h2 class="font-medium">Datos del servicio</h2>
+      <p><strong>Lugar de inicio del servicio:</strong> <span id="origenServicio"></span></p>
+      <p><strong>Destino del servicio:</strong> <span id="destinoServicio"></span></p>
+      <p><strong>Fecha de inicio del servicio:</strong> <span id="fechaInicio"></span></p>
+      <p><strong>Hora de inicio del servicio:</strong> <span id="horaInicio"></span></p>
+      <p><strong>Matrícula del vehículo:</strong> <span id="matricula"></span></p>
+    </div>
+
+    <!-- BOTONES -->
+    <div class="flex justify-center gap-4 pt-4">
+      <button
+        type="button"
+        onclick="window.location.href='Takeus.html'"
+        class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+      >
+        Volver
+      </button>
+
+      <button
+        type="button"
+        onclick="window.print()"
+        class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+      >
+        Imprimir
+      </button>
+    </div>
+
+  </section>
+</div>
+
+<!-- JS -->
+<script src="ruta.js"></script>
+</body>
+</html>

@@ -1,76 +1,67 @@
 /********************************
- * CONFIGURACIÓN EDITABLE
+ * CONFIGURACIÓN VTC (Sincronizada)
  ********************************/
+const EMPRESA_VTC = { 
+  nombre: "Mare Nostrum Movile", 
+  cif: "B12345678A", 
+  matricula: "1234ABCD" 
+};
 
-Resultado
-Localidad: Albalat dels Tarongers
-
-Tarifa: Tarifa 1
-
-Kilómetros: 0.00 km
-
-Espera: 0 min
-
-Subtotal: 8,75 €
-
-Mínimo: 5,10 €
-
-Total: 8,75 €
+const CLIENTE = { 
+  nombre: "RadioTaxi Sagunto", 
+  documento: "X12345678A", 
+};
 
 const LUGAR_CONTRATO = "Sagunto";
-const DESTINO = "Elegido por cliente";
+const DESTINO = "Elegido por el cliente";
 
 /********************************
  * UTILIDADES FECHA / HORA
  ********************************/
-
-function formatoFecha(fecha) {
-  return fecha.toLocaleDateString("es-ES");
-}
-
-function formatoHora(fecha) {
-  return fecha.toLocaleTimeString("es-ES", {
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-}
+const fmtF = (f) => f.toLocaleDateString("es-ES", { day: '2-digit', month: '2-digit', year: 'numeric' });
+const fmtH = (f) => f.toLocaleTimeString("es-ES", { hour: '2-digit', minute: '2-digit' });
 
 /********************************
  * CARGAR DATOS DE RUTA
  ********************************/
-
-document.addEventListener("DOMContentLoaded", () => {
-
-  // Hora actual
+function cargarHoja() {
   const ahora = new Date();
+  
+  // HORA CONTRATO: 15 minutos antes de la hora actual del PC
+  const contratoServicio = new Date(ahora.getTime() - 15 * 60000);
 
-  // Hora inicio servicio = 15 min antes
-  const inicioServicio = new Date(ahora.getTime() - 15 * 60000);
+  // Recuperar origen desde localStorage
+  const origen = localStorage.getItem("origenServicio") || "No especificado";
 
-  // Origen desde localStorage (guardado en Takeus.html)
-  const origen = localStorage.getItem("origenServicio") || "No indicado";
+  // Función para escribir en el HTML si el ID existe
+  const set = (id, text) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
+  };
 
-  /********************************
-   * ASIGNACIÓN AL HTML
-   ********************************/
+  // Asignación de datos Arrendador y Cliente
+  set("headerEmpresa", EMPRESA_VTC.nombre);
+  set("empresaNombre", EMPRESA_VTC.nombre);
+  set("empresaCIF", EMPRESA_VTC.cif);
+  set("matricula", EMPRESA_VTC.matricula);
+  set("clienteNombre", CLIENTE.nombre);
+  set("clienteDoc", CLIENTE.documento);
 
-  // Arrendador
-  document.getElementById("empresaNombre").textContent = EMPRESA_VTC.nombre;
-  document.getElementById("empresaCIF").textContent = EMPRESA_VTC.cif;
+  // Datos del Contrato (Lugar, Fecha, Hora -15 min)
+  set("lugarContrato", LUGAR_CONTRATO);
+  set("fechaContrato", fmtF(contratoServicio));
+  set("horaContrato", fmtH(contratoServicio));
 
-  // Cliente
-  document.getElementById("clienteNombre").textContent = CLIENTE.nombre;
-  document.getElementById("clienteDoc").textContent = CLIENTE.documento;
+  // Datos del Servicio (Itinerario)
+  set("origenServicio", origen);
+  set("destinoServicio", DESTINO);
+  
+  // Opcionales si existen en el HTML
+  set("fechaInicio", fmtF(ahora));
+  set("horaInicio", fmtH(ahora));
+}
 
-  // Contrato
-  document.getElementById("lugarContrato").textContent = LUGAR_CONTRATO;
-  document.getElementById("fechaContrato").textContent = formatoFecha(ahora);
-  document.getElementById("horaContrato").textContent = formatoHora(inicioServicio);
-
-  // Servicio
-  document.getElementById("origenServicio").textContent = origen;
-  document.getElementById("destinoServicio").textContent = DESTINO;
-  document.getElementById("fechaInicio").textContent = formatoFecha(inicioServicio);
-  document.getElementById("horaInicio").textContent = formatoHora(inicioServicio);
-  document.getElementById("matricula").textContent = EMPRESA_VTC.matricula;
-});
+// Ejecutar cuando el DOM esté listo
+document.addEventListener("DOMContentLoaded", cargarHoja);
+// Por seguridad en carga local:
+window.onload = cargarHoja;

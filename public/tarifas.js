@@ -1,7 +1,3 @@
-/********************************
- * CONFIGURACIÓN DE TARIFAS
- ********************************/
-
 const IVA_PORCENTAJE = 0.07;
 
 const tarifas = {
@@ -16,11 +12,7 @@ const minPercepcion = {
   nocturno: 7.10
 };
 
-/********************************
- * LOCALIDADES Y COSTE DE RECOGIDA
- ********************************/
-
-let localidades = [
+const localidades = [
   { name: "Sagunt / Sagunto", pickup: 5.00 },
   { name: "Canet d’en Berenguer", pickup: 5.00 },
   { name: "El Puig", pickup: 7.20 },
@@ -34,43 +26,32 @@ let localidades = [
   { name: "Puçol", pickup: 7.20 },
   { name: "Estivella", pickup: 7.20 },
   { name: "Albalat dels Tarongers", pickup: 7.20 },
-  { name: "Algímia d’Alfara", pickup: 10.35 },
-  { name: "Alfara de la Baronia", pickup: 10.35 },
-  { name: "Torres Torres", pickup: 10.35 },
-  { name: "Segart", pickup: 10.35 },
+  { name: "Algímia d’Alfara", pickup: 11.05 },
+  { name: "Alfara de la Baronia", pickup: 11.05 },
+  { name: "Torres Torres", pickup: 11.05 },
+  { name: "Segart", pickup: 11.05 },
   { name: "La Baronía Alta", pickup: 11.05 }
 ];
 
-/********************************
- * UTILIDADES
- ********************************/
-
+// Utilidades
 const $ = id => document.getElementById(id);
+function fmt(n) { return n.toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €"; }
 
-function fmt(n) {
-  return n.toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
-}
-
-/********************************
- * CARGAR LOCALIDADES EN SELECT
- ********************************/
-
-localidades.sort((a,b) => a.name.localeCompare(b.name, "es"));
+// Cargar localidades en select (ordenadas alfabéticamente)
 const localidadSelect = $("localidad");
-
-localidades.forEach((l,i)=>{
+localidades.sort((a,b) => a.name.localeCompare(b.name, "es")).forEach((l,i)=>{
   const opt = document.createElement("option");
   opt.value = i;
   opt.textContent = l.name;
   localidadSelect.appendChild(opt);
 });
 
-/********************************
- * CÁLCULO DEL SERVICIO
- ********************************/
-
+/**
+ * Lógica principal de cálculo
+ */
 function calcularServicio() {
-  if(localidadSelect.value==="") return null;
+  const index = localidadSelect.value;
+  if(index === "") return null;
 
   const tarifaId = Number(document.querySelector("input[name='tarifa']:checked").value);
   const tarifa = tarifas[tarifaId];
@@ -78,51 +59,81 @@ function calcularServicio() {
   const km = parseFloat($("km").value) || 0;
   const minutos = parseInt($("minutos").value) || 0;
   const horario = document.querySelector("input[name='horario']:checked").value;
-  const loc = localidades[localidadSelect.value];
+  const loc = localidades[index];
 
-  // Subtotal sin mínimo
-  let subtotalSinMin = tarifa.flagfall + tarifa.perKm * km + tarifa.perHourWait * (minutos / 60) + loc.pickup;
+  // 1. Cálculo de Espera
+  let espera = 0;
+  if(tarifa.perQuarterWait){ 
+    // Tarifas 3 y 4: fracciones de 15 min (si hay 1 min, ya cuenta como una fracción)
+    const fracciones = Math.ceil(minutos / 15);
+    espera = fracciones * tarifa.perQuarterWait;
+  } else {
+    // Tarifas 1 y 2: Proporcional por hora
+    espera = tarifa.perHourWait * (minutos / 60);
+  }
+
+  // 2. Cálculo del Bruto (IVA incluido)
+  let totalConIVA = tarifa.flagfall + loc.pickup + (km * tarifa.perKm) + espera;
+
+  // 3. Aplicar Mínimo de Percepción
   const minimo = minPercepcion[horario];
-  const subtotal = Math.max(subtotalSinMin, minimo);
+  if(totalConIVA < minimo) {
+      totalConIVA = minimo;
+  }
 
-  // IVA desglosado
-  const subtotalSinIVA = subtotal / (1 + IVA_PORCENTAJE);
-  const iva = subtotal - subtotalSinIVA;
+  // 4. Desglose de Base e IVA (7%)
+  // Fórmula: Base = Total / (1 + 0.07)
+  const base = totalConIVA / (1 + IVA_PORCENTAJE);
+  const iva = totalConIVA - base;
 
-  const totalConIVA = subtotal;
+  // 5. Mostrar en pantalla (index.html)
+  const factDiv = $("factura");
+  const placeholder = $("placeholder");
+  
+  if (factDiv && placeholder) {
+      factDiv.classList.remove("hidden");
+      placeholder.classList.add("hidden");
+  }
 
-  // Mostrar en pantalla
-  $("factura").classList.remove("hidden");
   $("factLocalidad").textContent = loc.name;
   $("factTarifa").textContent = `Tarifa ${tarifaId}`;
   $("factKm").textContent = `${km.toFixed(2)} km`;
-  $("factEspera").textContent = `${minutos} min`;
-  $("factSubtotal").textContent = fmt(subtotalSinIVA);
-  $("factMinimo").textContent = fmt(minimo);
+  $("factBase").textContent = fmt(base);
   $("factIVA").textContent = fmt(iva);
   $("factTotal").textContent = fmt(totalConIVA);
 
-  return { tarifaId, km, minutos, loc, subtotal: subtotalSinIVA, minimo, iva, total: totalConIVA };
+  // 6. Guardar en localStorage para la Hoja de Ruta (ruta.html)
+  localStorage.setItem("origenServicio", loc.name);
+
+  return { 
+      tarifaId, 
+      km, 
+      minutos, 
+      loc, 
+      base: +base.toFixed(2), 
+      iva: +iva.toFixed(2), 
+      total: +totalConIVA.toFixed(2) 
+  };
 }
 
-/********************************
- * BOTONES
- ********************************/
-
-$("rutaBtn").addEventListener("click",()=>{
-  if(localidadSelect.value===""){
-    alert("Seleccione origen");
-    return;
-  }
-  localStorage.setItem("origenServicio", localidades[localidadSelect.value].name);
-  window.location.href="ruta.html";
+// Botón limpiar
+$("limpiarBtn").addEventListener("click", ()=>{
+  localidadSelect.value = "";
+  $("km").value = "";
+  $("minutos").value = "";
+  document.querySelector("input[name='tarifa'][value='1']").checked = true;
+  document.querySelector("input[name='horario'][value='diurno']").checked = true;
+  
+  if($("factura")) $("factura").classList.add("hidden");
+  if($("placeholder")) $("placeholder").classList.remove("hidden");
+  
+  localStorage.removeItem("origenServicio");
 });
 
-$("limpiarBtn").addEventListener("click",()=>{
-  localidadSelect.value="";
-  $("km").value=0;
-  $("minutos").value=0;
-  document.querySelector("input[name='tarifa'][value='1']").checked=true;
-  document.querySelector("input[name='horario'][value='diurno']").checked=true;
-  $("factura").classList.add("hidden");
+// Escuchar cambios para cálculo automático (opcional, pero mejora UX)
+[localidadSelect, $("km"), $("minutos")].forEach(el => {
+    el.addEventListener('input', calcularServicio);
+});
+document.querySelectorAll("input[name='tarifa'], input[name='horario']").forEach(el => {
+    el.addEventListener('change', calcularServicio);
 });

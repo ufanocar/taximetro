@@ -3,89 +3,168 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Calculadora de Tarifa</title>
+  <title>Calculadora de Tarifa Camp Morvedre</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-gray-50 text-gray-800">
+<body class="bg-slate-50 text-slate-800 font-sans">
 
-<div class="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8">
+<div class="max-w-6xl mx-auto p-4 sm:p-8">
 
-  <!-- CABECERA -->
-  <header class="mb-6 text-center">
-    <h1 class="text-3xl font-bold mb-1">Calculadora de Tarifa</h1>
-    <p class="text-sm text-gray-600">Servicio · Ticket · Ruta</p>
+  <header class="mb-8 text-center">
+    <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight">Taxímetro Digital</h1>
+    <p class="text-slate-500 mt-2 italic">Gestión de tarifas y documentación</p>
   </header>
 
-  <main class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+  <main class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-    <!-- FORMULARIO -->
-    <section class="bg-white p-6 rounded-2xl shadow-lg">
-      <h2 class="font-semibold text-xl mb-4">Datos del servicio</h2>
-
-      <!-- ORIGEN -->
-      <label class="block text-sm font-medium mb-1">Origen</label>
-      <select id="localidad" class="w-full mb-4 p-2 border rounded">
-        <option value="">-- Seleccionar origen --</option>
-      </select>
-
-      <!-- TARIFA -->
-      <label class="block text-sm font-medium mb-1">Tarifa</label>
-      <div class="mb-4 flex flex-wrap gap-3 text-sm">
-        <label><input type="radio" name="tarifa" value="1" checked> Tarifa 1</label>
-        <label><input type="radio" name="tarifa" value="2"> Tarifa 2</label>
-        <label><input type="radio" name="tarifa" value="3"> Tarifa 3</label>
-        <label><input type="radio" name="tarifa" value="4"> Tarifa 4</label>
+    <section class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+      <div class="flex items-center gap-2 mb-6 border-b pb-4">
+        <div class="w-2 h-6 bg-indigo-600 rounded-full"></div>
+        <h2 class="font-bold text-xl text-slate-700">Datos del servicio</h2>
       </div>
 
-      <!-- KM -->
-      <label class="block text-sm font-medium mb-1">Kilómetros</label>
-      <input id="km" type="number" min="0" step="0.01" value="0"
-             class="w-full mb-4 p-2 border rounded">
-
-      <!-- ESPERA -->
-      <label class="block text-sm font-medium mb-1">Minutos de espera</label>
-      <input id="minutos" type="number" min="0" step="1" value="0"
-             class="w-full mb-4 p-2 border rounded">
-
-      <!-- HORARIO -->
-      <label class="block text-sm font-medium mb-1">Horario</label>
-      <div class="mb-6 flex gap-4 text-sm">
-        <label><input type="radio" name="horario" value="diurno" checked> Diurno</label>
-        <label><input type="radio" name="horario" value="nocturno"> Nocturno</label>
+      <div class="mb-5">
+        <label class="block text-xs font-bold uppercase text-slate-400 mb-1 ml-1">Localidad de Origen</label>
+        <select id="localidad" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+          <option value="">-- Seleccionar origen --</option>
+        </select>
       </div>
 
-      <!-- BOTONES -->
-      <div class="flex flex-wrap gap-3 justify-center sm:justify-start">
-        <button id="ticketBtn" type="button"
-                class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">Ticket</button>
-        <button id="rutaBtn" type="button"
-                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">Ruta</button>
-        <button id="limpiarBtn" type="button"
-                class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition">Limpiar</button>
+      <div class="mb-5">
+        <label class="block text-xs font-bold uppercase text-slate-400 mb-2 ml-1">Tarifa Aplicable</label>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <label class="flex flex-col items-center justify-center p-3 border rounded-xl cursor-pointer hover:bg-indigo-50 transition peer">
+            <input type="radio" name="tarifa" value="1" checked class="mb-1">
+            <span class="text-xs font-bold uppercase text-slate-600">T1</span>
+          </label>
+          <label class="flex flex-col items-center justify-center p-3 border rounded-xl cursor-pointer hover:bg-indigo-50 transition">
+            <input type="radio" name="tarifa" value="2" class="mb-1">
+            <span class="text-xs font-bold uppercase text-slate-600">T2</span>
+          </label>
+          <label class="flex flex-col items-center justify-center p-3 border rounded-xl cursor-pointer hover:bg-indigo-50 transition">
+            <input type="radio" name="tarifa" value="3" class="mb-1">
+            <span class="text-xs font-bold uppercase text-slate-600">T3</span>
+          </label>
+          <label class="flex flex-col items-center justify-center p-3 border rounded-xl cursor-pointer hover:bg-indigo-50 transition">
+            <input type="radio" name="tarifa" value="4" class="mr-1">
+            <span class="text-xs font-bold uppercase text-slate-600">T4</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 mb-5">
+        <div>
+          <label class="block text-xs font-bold uppercase text-slate-400 mb-1 ml-1">Distancia (km)</label>
+          <input id="km" type="number" step="0.01" placeholder="0.00" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-bold uppercase text-slate-400 mb-1 ml-1">Espera (min)</label>
+          <input id="minutos" type="number" step="1" placeholder="0" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+      </div>
+
+      <div class="mb-8">
+        <label class="block text-xs font-bold uppercase text-slate-400 mb-2 ml-1">Franja Horaria (Mínimo percepción)</label>
+        <div class="flex gap-4">
+          <label class="flex-1 flex items-center justify-center p-3 border rounded-xl cursor-pointer hover:bg-orange-50 transition">
+            <input type="radio" name="horario" value="diurno" checked class="mr-2"> <span class="text-sm font-medium">Diurno</span>
+          </label>
+          <label class="flex-1 flex items-center justify-center p-3 border rounded-xl cursor-pointer hover:bg-blue-50 transition">
+            <input type="radio" name="horario" value="nocturno" class="mr-2"> <span class="text-sm font-medium">Nocturno</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <button id="ticketBtn" class="bg-emerald-600 text-white font-bold py-3 rounded-xl hover:bg-emerald-700 shadow-lg shadow-emerald-100 transition active:scale-95">
+          Ticket
+        </button>
+        <button id="rutaBtn" class="bg-indigo-600 text-white font-bold py-3 rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-100 transition active:scale-95">
+          Hoja Ruta
+        </button>
+        <button id="limpiarBtn" class="bg-slate-200 text-slate-600 font-bold py-3 rounded-xl hover:bg-slate-300 transition">
+          Limpiar
+        </button>
       </div>
     </section>
 
-    <!-- RESULTADO / FACTURA -->
-    <section class="bg-white p-6 rounded-2xl shadow-lg">
-      <h2 class="font-semibold text-xl mb-4">Factura simulada</h2>
-      <div id="factura" class="hidden space-y-2 text-sm">
-        <p><strong>Localidad:</strong> <span id="factLocalidad"></span></p>
-        <p><strong>Tarifa:</strong> <span id="factTarifa"></span></p>
-        <p><strong>Kilómetros:</strong> <span id="factKm"></span></p>
-        <p><strong>Espera:</strong> <span id="factEspera"></span></p>
-        <p><strong>Subtotal:</strong> <span id="factSubtotal"></span></p>
-        <p><strong>Mínimo aplicado:</strong> <span id="factMinimo"></span></p>
-        <p><strong>IVA (7%):</strong> <span id="factIVA"></span></p>
-        <p class="text-lg font-bold"><strong>Total:</strong> <span id="factTotal"></span></p>
+    <section class="bg-slate-900 text-white p-8 rounded-3xl shadow-xl flex flex-col">
+      <div class="flex justify-between items-center mb-8 border-b border-slate-800 pb-4">
+        <h2 class="font-bold text-xl uppercase tracking-widest text-slate-400">Resumen</h2>
+        <span class="bg-indigo-500 text-[10px] font-black px-2 py-1 rounded text-white uppercase">Provisional</span>
+      </div>
+
+      <div id="factura" class="hidden space-y-4 flex-grow">
+        <div class="flex justify-between text-lg">
+          <span class="text-slate-400">Localidad:</span>
+          <span id="factLocalidad" class="font-bold"></span>
+        </div>
+        <div class="flex justify-between text-lg">
+          <span class="text-slate-400">Tarifa aplicada:</span>
+          <span id="factTarifa" class="font-bold"></span>
+        </div>
+        <div class="flex justify-between text-lg border-b border-slate-800 pb-4">
+          <span class="text-slate-400">Distancia recorrida:</span>
+          <span id="factKm" class="font-bold"></span>
+        </div>
+        
+        <div class="pt-4 space-y-2">
+          <div class="flex justify-between text-sm text-slate-400">
+            <span>Base imponible (IVA 7% incl.):</span>
+            <span id="factBase"></span>
+          </div>
+          <div class="flex justify-between text-sm text-slate-400">
+            <span>Cuota IVA:</span>
+            <span id="factIVA"></span>
+          </div>
+          <div class="flex justify-between items-end pt-6">
+            <span class="text-xl font-bold uppercase tracking-tighter">Total a pagar</span>
+            <span id="factTotal" class="text-5xl font-black text-emerald-400 tracking-tighter"></span>
+          </div>
+        </div>
+      </div>
+
+      <div id="placeholder" class="flex flex-col items-center justify-center h-full text-slate-600 italic">
+        <p>Introduzca los datos para calcular la factura</p>
       </div>
     </section>
 
   </main>
 </div>
 
-<!-- JS -->
 <script src="tarifas.js"></script>
 <script src="ticket.js"></script>
+<script>
+  // Script rápido para manejar el placeholder
+  const btnTicket = document.getElementById('ticketBtn');
+  const facturaDiv = document.getElementById('factura');
+  const placeholder = document.getElementById('placeholder');
+
+  btnTicket.addEventListener('click', () => {
+    if(document.getElementById('localidad').value !== "") {
+      facturaDiv.classList.remove('hidden');
+      placeholder.classList.add('hidden');
+    }
+  });
+
+  document.getElementById('limpiarBtn').addEventListener('click', () => {
+    facturaDiv.classList.add('hidden');
+    placeholder.classList.remove('hidden');
+  });
+
+  // Funcionalidad para el botón de Hoja de Ruta (conecta con ruta.html)
+  document.getElementById('rutaBtn').addEventListener('click', () => {
+    const loc = document.getElementById('localidad');
+    if(loc.value === "") {
+      alert("Seleccione un origen primero");
+      return;
+    }
+    // Guardamos el origen en localStorage para ruta.js
+    const nombreLocalidad = loc.options[loc.selectedIndex].text;
+    localStorage.setItem("origenServicio", nombreLocalidad);
+    window.location.href = 'ruta.html';
+  });
+</script>
 </body>
 </html>

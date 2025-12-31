@@ -3,74 +3,107 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>TakeUs · Ruta / Contrato</title>
+  <title>Hoja de Ruta · Contrato VTC</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Estilos para impresión: oculta botones y ajusta márgenes */
+    @media print { 
+      .no-print { display: none !important; } 
+      body { background-color: white !important; padding: 0 !important; }
+      .shadow-lg { shadow: none !important; border: 1px solid #eee !important; }
+    }
+    /* Fuente monoespaciada para datos técnicos */
+    .font-mono-data { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+  </style>
 </head>
 
-<body class="bg-gray-50 text-gray-800">
-<div class="max-w-3xl mx-auto p-6">
-
-  <section class="bg-white p-6 rounded-2xl shadow space-y-6">
-
-    <h1 class="text-xl font-semibold text-center">
-      Datos del contrato de arrendamiento VTC
-    </h1>
-
-    <!-- ARRENDADOR -->
-    <div class="space-y-1 text-sm">
-      <h2 class="font-medium">Identificación del arrendador (empresa VTC)</h2>
-      <p><strong>Nombre / Razón social:</strong> <span id="empresaNombre"></span></p>
-      <p><strong>NIF / CIF:</strong> <span id="empresaCIF"></span></p>
+<body class="bg-slate-100 py-10 px-4 min-h-screen">
+  
+  <div class="max-w-3xl mx-auto bg-white shadow-2xl border-t-8 border-indigo-700 p-8 sm:p-12 rounded-sm relative">
+    
+    <div class="absolute top-0 right-0 mt-4 mr-8 no-print">
+      <span class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-1 rounded font-black uppercase tracking-widest">Documento Oficial</span>
     </div>
 
-    <!-- CLIENTE -->
-    <div class="space-y-1 text-sm">
-      <h2 class="font-medium">Identificación del cliente (arrendatario)</h2>
-      <p><strong>Nombre / Razón social:</strong> <span id="clienteNombre"></span></p>
-      <p><strong>Documento identificativo:</strong> <span id="clienteDoc"></span></p>
+    <header class="flex justify-between items-end mb-10 border-b-2 border-slate-100 pb-8">
+      <div>
+        <h1 class="text-3xl font-black text-slate-900 uppercase tracking-tighter leading-none">Hoja de Ruta</h1>
+        <p class="text-xs text-indigo-600 font-bold uppercase tracking-[0.2em] mt-2">Contrato de Arrendamiento de Vehículo</p>
+      </div>
+      <div class="text-right">
+        <p class="font-black text-slate-800 text-lg" id="headerEmpresa">RadioTaxi Sagunto</p>
+        <p class="text-[10px] text-slate-400 font-medium uppercase italic">Servicio VTC · Control Administrativo</p>
+      </div>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10">
+      <section>
+        <h2 class="text-indigo-700 font-black uppercase text-[10px] mb-4 tracking-widest flex items-center gap-2">
+          <span class="w-1.5 h-1.5 bg-indigo-600 rounded-full"></span> Identificación del Arrendador
+        </h2>
+        <div class="space-y-2 text-sm text-slate-700">
+          <p class="flex justify-between"><strong>Razón Social:</strong> <span id="empresaNombre" class="font-medium"></span></p>
+          <p class="flex justify-between"><strong>NIF / CIF:</strong> <span id="empresaCIF" class="font-mono-data"></span></p>
+          <p class="flex justify-between"><strong>Matrícula:</strong> <span id="matricula" class="font-mono-data"></span></p>
+        </div>
+      </section>
+
+      <section>
+        <h2 class="text-indigo-700 font-black uppercase text-[10px] mb-4 tracking-widest flex items-center gap-2">
+          <span class="w-1.5 h-1.5 bg-indigo-600 rounded-full"></span> Identificación del Arrendatario
+        </h2>
+        <div class="space-y-2 text-sm text-slate-700">
+          <p class="flex justify-between"><strong>Nombre:</strong> <span id="clienteNombre" class="font-medium"></span></p>
+          <p class="flex justify-between"><strong>DNI / NIE:</strong> <span id="clienteDoc" class="font-mono-data"></span></p>
+        </div>
+      </section>
     </div>
 
-    <!-- CONTRATO -->
-    <div class="space-y-1 text-sm">
-      <h2 class="font-medium">Datos del contrato</h2>
-      <p><strong>Lugar de contratación:</strong> <span id="lugarContrato"></span></p>
-      <p><strong>Fecha de contratación:</strong> <span id="fechaContrato"></span></p>
-      <p><strong>Hora de contratación / inicio:</strong> <span id="horaContrato"></span></p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-10 text-sm mb-12">
+      <section class="border-l-2 border-slate-100 pl-6">
+        <h2 class="text-indigo-700 font-black uppercase text-[10px] mb-4 tracking-widest">Detalles de Contratación</h2>
+        <div class="space-y-2 text-slate-700">
+          <p class="flex justify-between"><strong>Lugar:</strong> <span id="lugarContrato"></span></p>
+          <p class="flex justify-between"><strong>Fecha:</strong> <span id="fechaContrato" class="font-mono-data text-blue-600 font-bold"></span></p>
+          <p class="flex justify-between"><strong>Hora Contrato:</strong> <span id="horaContrato" class="font-mono-data text-blue-600 font-bold"></span></p>
+        </div>
+        <p class="text-[9px] text-slate-400 mt-4 italic">* La contratación se ha realizado con al menos 15 minutos de antelación según normativa.</p>
+      </section>
+
+      <section class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
+        <h2 class="text-slate-500 font-black uppercase text-[10px] mb-4 tracking-widest italic">Itinerario de Ruta</h2>
+        <div class="space-y-4">
+          <div class="relative pl-6">
+            <div class="absolute left-0 top-1 w-3 h-3 border-2 border-indigo-600 rounded-full bg-white"></div>
+            <div class="absolute left-[5px] top-4 w-0.5 h-6 bg-slate-200"></div>
+            <p class="text-[10px] text-slate-400 uppercase font-bold tracking-tighter">Origen / Inicio</p>
+            <p id="origenServicio" class="font-bold text-slate-900"></p>
+          </div>
+          <div class="relative pl-6">
+            <div class="absolute left-0 top-1 w-3 h-3 bg-indigo-600 rounded-full"></div>
+            <p class="text-[10px] text-slate-400 uppercase font-bold tracking-tighter">Destino / Final</p>
+            <p id="destinoServicio" class="font-bold text-slate-900 italic"></p>
+          </div>
+        </div>
+      </section>
     </div>
 
-    <!-- SERVICIO -->
-    <div class="space-y-1 text-sm">
-      <h2 class="font-medium">Datos del servicio</h2>
-      <p><strong>Lugar de inicio del servicio:</strong> <span id="origenServicio"></span></p>
-      <p><strong>Destino del servicio:</strong> <span id="destinoServicio"></span></p>
-      <p><strong>Fecha de inicio del servicio:</strong> <span id="fechaInicio"></span></p>
-      <p><strong>Hora de inicio del servicio:</strong> <span id="horaInicio"></span></p>
-      <p><strong>Matrícula del vehículo:</strong> <span id="matricula"></span></p>
-    </div>
+    <footer class="mt-12 pt-6 border-t border-slate-100 text-[10px] text-slate-400 text-center leading-relaxed italic">
+      Este documento surte efectos de contrato de transporte de conformidad con la normativa vigente de Arrendamiento de Vehículos con Conductor. El servicio ha sido pre-contratado telemáticamente.
+    </footer>
 
-    <!-- BOTONES -->
-    <div class="flex justify-center gap-4 pt-4">
-      <button
-        type="button"
-        onclick="window.location.href='index.html'"
-        class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-      >
+    <div class="flex flex-col sm:flex-row justify-center gap-4 mt-12 no-print">
+      <button onclick="window.location.href='index.html'" class="px-8 py-3 bg-slate-200 text-slate-600 font-black rounded-xl hover:bg-slate-300 transition-all uppercase text-xs tracking-widest">
         Volver
       </button>
-
-      <button
-        type="button"
-        onclick="window.print()"
-        class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
-      >
-        Imprimir
+      <button onclick="window.print()" class="px-10 py-3 bg-indigo-600 text-white font-black rounded-xl shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all uppercase text-xs tracking-widest">
+        Imprimir Contrato
       </button>
     </div>
 
-  </section>
-</div>
+  </div>
 
-<!-- JS -->
-<script src="ruta.js"></script>
+  <script src="ruta.js"></script>
+
 </body>
 </html>

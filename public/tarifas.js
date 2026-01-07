@@ -1,4 +1,4 @@
-const IVA_PORCENTAJE = 0.07;
+const IVA_PORCENTAJE = 0.10; // Actualizado al 10%
 
 const tarifas = {
   1: { flagfall: 2.15, perKm: 1.20, perHourWait: 20.87 }, // Tarifa 1
@@ -13,6 +13,7 @@ const minPercepcion = {
 };
 
 const localidades = [
+  { name: "Sin recogida", pickup: 0, especial: true }, // Opción para habilitar mínimos
   { name: "Sagunt / Sagunto", pickup: 5.00 },
   { name: "Canet d’en Berenguer", pickup: 5.00 },
   { name: "El Puig", pickup: 7.20 },
@@ -37,17 +38,41 @@ const localidades = [
 const $ = id => document.getElementById(id);
 function fmt(n) { return n.toLocaleString("es-ES", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €"; }
 
-// Cargar localidades en select (ordenadas alfabéticamente)
+// --- CARGA DE LOCALIDADES EN EL SELECT ---
 const localidadSelect = $("localidad");
-localidades.sort((a,b) => a.name.localeCompare(b.name, "es")).forEach((l,i)=>{
+// Separar "Sin recogida" para que siempre sea la primera opción
+const especial = localidades.find(l => l.especial);
+const pueblos = localidades.filter(l => !l.especial).sort((a,b) => a.name.localeCompare(b.name, "es"));
+
+[especial, ...pueblos].forEach((l) => {
   const opt = document.createElement("option");
-  opt.value = i;
+  // Buscamos el índice original en el array 'localidades' para no romper la lógica de precios
+  opt.value = localidades.indexOf(l);
   opt.textContent = l.name;
   localidadSelect.appendChild(opt);
 });
 
 /**
- * Lógica principal de cálculo
+ * Gestiona el estado de los botones de radio de Horario.
+ * Solo se activan si se selecciona "Sin recogida" (índice 0).
+ */
+function gestionarEstadoHorario() {
+  const locIndex = localidadSelect.value;
+  const esSinRecogida = locIndex === "0";
+  const radios = document.querySelectorAll("input[name='horario']");
+
+  radios.forEach(r => {
+    r.disabled = !esSinRecogida;
+    const parent = r.closest('label');
+    if (parent) {
+      parent.style.opacity = esSinRecogida ? "1" : "0.4";
+      parent.style.cursor = esSinRecogida ? "pointer" : "not-allowed";
+    }
+  });
+}
+
+/**
+ * Lógica principal de cálculo del servicio
  */
 function calcularServicio() {
   const index = localidadSelect.value;
@@ -58,42 +83,34 @@ function calcularServicio() {
 
   const km = parseFloat($("km").value) || 0;
   const minutos = parseInt($("minutos").value) || 0;
-  const horario = document.querySelector("input[name='horario']:checked").value;
   const loc = localidades[index];
 
   // 1. Cálculo de Espera
   let espera = 0;
   if(tarifa.perQuarterWait){ 
-    // Tarifas 3 y 4: fracciones de 15 min (si hay 1 min, ya cuenta como una fracción)
     const fracciones = Math.ceil(minutos / 15);
     espera = fracciones * tarifa.perQuarterWait;
   } else {
-    // Tarifas 1 y 2: Proporcional por hora
     espera = tarifa.perHourWait * (minutos / 60);
   }
 
-  // 2. Cálculo del Bruto (IVA incluido)
+  // 2. Cálculo del Bruto inicial (IVA incluido)
   let totalConIVA = tarifa.flagfall + loc.pickup + (km * tarifa.perKm) + espera;
 
-  // 3. Aplicar Mínimo de Percepción
-  const minimo = minPercepcion[horario];
-  if(totalConIVA < minimo) {
-      totalConIVA = minimo;
+  // 3. Aplicar Mínimo de Percepción SOLO si se selecciona "Sin recogida"
+  if(loc.especial) {
+    const horario = document.querySelector("input[name='horario']:checked").value;
+    const minimo = minPercepcion[horario];
+    if(totalConIVA < minimo) totalConIVA = minimo;
   }
 
-  // 4. Desglose de Base e IVA (7%)
-  // Fórmula: Base = Total / (1 + 0.07)
+  // 4. Desglose de Base e IVA (10%)
   const base = totalConIVA / (1 + IVA_PORCENTAJE);
   const iva = totalConIVA - base;
 
-  // 5. Mostrar en pantalla (index.html)
-  const factDiv = $("factura");
-  const placeholder = $("placeholder");
-  
-  if (factDiv && placeholder) {
-      factDiv.classList.remove("hidden");
-      placeholder.classList.add("hidden");
-  }
+  // 5. Actualizar Interfaz de Usuario
+  if ($("factura")) $("factura").classList.remove("hidden");
+  if ($("placeholder")) $("placeholder").classList.add("hidden");
 
   $("factLocalidad").textContent = loc.name;
   $("factTarifa").textContent = `Tarifa ${tarifaId}`;
@@ -102,19 +119,33 @@ function calcularServicio() {
   $("factIVA").textContent = fmt(iva);
   $("factTotal").textContent = fmt(totalConIVA);
 
-  // 6. Guardar en localStorage para la Hoja de Ruta (ruta.html)
+  // Guardar en localStorage para ruta.html
   localStorage.setItem("origenServicio", loc.name);
 
   return { 
-      tarifaId, 
-      km, 
-      minutos, 
-      loc, 
-      base: +base.toFixed(2), 
-      iva: +iva.toFixed(2), 
-      total: +totalConIVA.toFixed(2) 
+    tarifaId, km, minutos, loc, 
+    base: +base.toFixed(2), 
+    iva: +iva.toFixed(2), 
+    total: +totalConIVA.toFixed(2) 
   };
 }
+
+// --- EVENTOS ---
+
+localidadSelect.addEventListener("change", () => {
+  gestionarEstadoHorario();
+  calcularServicio();
+});
+
+// Listener para cambios automáticos en inputs numéricos
+[$("km"), $("minutos")].forEach(el => {
+  el.addEventListener('input', calcularServicio);
+});
+
+// Listener para cambios en radios (Tarifa y Horario)
+document.querySelectorAll("input[name='tarifa'], input[name='horario']").forEach(el => {
+  el.addEventListener('change', calcularServicio);
+});
 
 // Botón limpiar
 $("limpiarBtn").addEventListener("click", ()=>{
@@ -128,12 +159,8 @@ $("limpiarBtn").addEventListener("click", ()=>{
   if($("placeholder")) $("placeholder").classList.remove("hidden");
   
   localStorage.removeItem("origenServicio");
+  gestionarEstadoHorario();
 });
 
-// Escuchar cambios para cálculo automático (opcional, pero mejora UX)
-[localidadSelect, $("km"), $("minutos")].forEach(el => {
-    el.addEventListener('input', calcularServicio);
-});
-document.querySelectorAll("input[name='tarifa'], input[name='horario']").forEach(el => {
-    el.addEventListener('change', calcularServicio);
-});
+// Inicialización al cargar el script
+gestionarEstadoHorario();

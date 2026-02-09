@@ -13,25 +13,25 @@ const minPercepcion = {
 };
 
 const localidades = [
-  { name: "Sin recogida", pickup: 0, especial: true }, // Opción para habilitar mínimos
-  { name: "Sagunt / Sagunto", pickup: 5.00 },
-  { name: "Canet d’en Berenguer", pickup: 5.00 },
-  { name: "El Puig", pickup: 7.20 },
-  { name: "Faura", pickup: 7.20 },
-  { name: "Benifairó de les Valls", pickup: 7.20 },
-  { name: "Quartell", pickup: 7.20 },
-  { name: "Quart de les Valls", pickup: 7.20 },
-  { name: "Benavites", pickup: 7.20 },
-  { name: "Gilet", pickup: 7.20 },
-  { name: "Petrés", pickup: 7.20 },
-  { name: "Puçol", pickup: 7.20 },
-  { name: "Estivella", pickup: 7.20 },
+  { name: "Sin recogida", pickup: 0, especial: true },
   { name: "Albalat dels Tarongers", pickup: 7.20 },
-  { name: "Algímia d’Alfara", pickup: 11.05 },
   { name: "Alfara de la Baronia", pickup: 11.05 },
-  { name: "Torres Torres", pickup: 11.05 },
+  { name: "Algar de Palancia", pickup: 11.05 },
+  { name: "Algimia d'Alfara", pickup: 11.05 },
+  { name: "Benavites", pickup: 7.20 },
+  { name: "Benifairo de les Valls", pickup: 7.20 },
+  { name: "Canet d'en Berenguer", pickup: 5.00 },
+  { name: "El Puig", pickup: 7.20 },
+  { name: "Estivella", pickup: 7.20 },
+  { name: "Faura", pickup: 7.20 },
+  { name: "Gilet", pickup: 7.20 },
+  { name: "Petres", pickup: 7.20 },
+  { name: "Puzol", pickup: 7.20 },
+  { name: "Quart de les Valls", pickup: 7.20 },
+  { name: "Quartell", pickup: 7.20 },
+  { name: "Sagunt / Sagunto", pickup: 5.00 },
   { name: "Segart", pickup: 11.05 },
-  { name: "La Baronía Alta", pickup: 11.05 }
+  { name: "Torres Torres", pickup: 11.05 }
 ];
 
 // Utilidades

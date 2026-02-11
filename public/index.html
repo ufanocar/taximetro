@@ -112,11 +112,11 @@
         
         <div class="pt-4 space-y-2">
           <div class="flex justify-between text-sm text-slate-400 font-mono">
-            <span>Base (IVA 10% incl.):</span>
+            <span>Base Imponible (PVP / 1.10):</span>
             <span id="factBase"></span>
           </div>
           <div class="flex justify-between text-sm text-slate-400 font-mono">
-            <span>Cuota IVA (10%):</span>
+            <span>IVA Aplicado (10%):</span>
             <span id="factIVA"></span>
           </div>
           <div class="flex justify-between items-end pt-8">
@@ -143,19 +143,17 @@
 <script>
   // Manejo del botón Hoja de Ruta
   document.getElementById('rutaBtn').addEventListener('click', () => {
-    // Forzamos el cálculo para que el localStorage esté al día
     if(typeof calcularServicio === 'function') {
       const data = calcularServicio();
       if (!data) {
         alert("Seleccione una localidad de origen");
         return;
       }
-      // Redirigir a la hoja de ruta
       window.location.href = 'ruta.html';
     }
   });
 
-  // UI: Mostrar/Ocultar factura al pulsar ticket (si no es automático)
+  // UI: Mostrar/Ocultar factura al pulsar ticket
   document.getElementById('ticketBtn').addEventListener('click', () => {
     if(document.getElementById('localidad').value !== "") {
       document.getElementById('factura').classList.remove('hidden');

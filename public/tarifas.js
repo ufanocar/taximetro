@@ -1,7 +1,7 @@
 /********************************
  * CONFIGURACIÓN Y TARIFAS
  ********************************/
-const IVA_PORCENTAJE = 0.10; // 10% (Ya incluido en los precios)
+const IVA_PORCENTAJE = 0.10; 
 
 const tarifas = {
   1: { flagfall: 2.15, perKm: 1.20, perHourWait: 20.87 },
@@ -47,120 +47,124 @@ function fmt(n) {
  * CARGA DE LOCALIDADES
  ********************************/
 const localidadSelect = $("localidad");
-const especial = localidades.find(l => l.especial);
-const pueblos = localidades.filter(l => !l.especial).sort((a,b) => a.name.localeCompare(b.name, "es"));
 
-[especial, ...pueblos].forEach((l) => {
-  const opt = document.createElement("option");
-  opt.value = localidades.indexOf(l);
-  opt.textContent = l.name;
-  localidadSelect.appendChild(opt);
-});
+function inicializarLocalidades() {
+    if (!localidadSelect) return;
+    localidadSelect.innerHTML = '<option value="">-- Seleccionar origen --</option>';
+    
+    // Separamos "Sin recogida" y ordenamos el resto alfabéticamente
+    const especial = localidades.find(l => l.especial);
+    const pueblos = localidades.filter(l => !l.especial).sort((a,b) => a.name.localeCompare(b.name, "es"));
 
-function gestionarEstadoHorario() {
-  const locIndex = localidadSelect.value;
-  // El horario solo es relevante para aplicar mínimos si no hay una recogida grande
-  // o si se quiere forzar el mínimo diurno/nocturno.
-  const radios = document.querySelectorAll("input[name='horario']");
-  radios.forEach(r => {
-    const parent = r.closest('label');
-    if (parent) {
-      parent.style.opacity = "1";
-      parent.style.cursor = "pointer";
-    }
-  });
+    [especial, ...pueblos].forEach((l) => {
+        const opt = document.createElement("option");
+        opt.value = localidades.indexOf(l);
+        opt.textContent = l.name;
+        localidadSelect.appendChild(opt);
+    });
 }
 
 /********************************
  * LÓGICA DE CÁLCULO PRINCIPAL
  ********************************/
 function calcularServicio() {
-  const index = localidadSelect.value;
-  if(index === "") return null;
+    const index = localidadSelect.value;
+    if (index === "" || index === null) return null;
 
-  const tarifaId = Number(document.querySelector("input[name='tarifa']:checked").value);
-  const tarifa = tarifas[tarifaId];
+    const tarifaId = Number(document.querySelector("input[name='tarifa']:checked").value);
+    const tarifa = tarifas[tarifaId];
 
-  const km = parseFloat($("km").value) || 0;
-  const minutos = parseInt($("minutos").value) || 0;
-  const loc = localidades[index];
+    const km = parseFloat($("km").value) || 0;
+    const minutos = parseInt($("minutos").value) || 0;
+    const loc = localidades[index];
 
-  // 1. Cálculo del precio real según taxímetro
-  const espera = tarifa.perHourWait * (minutos / 60);
-  let totalCalculado = tarifa.flagfall + loc.pickup + (km * tarifa.perKm) + espera;
+    let totalAcumulado = 0;
 
-  // 2. Aplicar Mínimo de Percepción
-  // Si el total calculado es menor que el mínimo de la franja, se cobra el mínimo.
-  const horario = document.querySelector("input[name='horario']:checked").value;
-  const minimoLegal = minPercepcion[horario];
+    // --- LÓGICA DE INICIO (BANDERA O RECOGIDA) ---
+    // Si hay recogida (pueblos), se empieza con ese precio (IVA incluido, bandera incluida).
+    // Si no hay recogida, se empieza con la bandera de la tarifa elegida.
+    if (loc.pickup > 0) {
+        totalAcumulado = loc.pickup; 
+    } else {
+        totalAcumulado = tarifa.flagfall;
+    }
 
-  if (totalCalculado < minimoLegal) {
-    totalCalculado = minimoLegal;
-  }
+    // --- SUMA DE TRAYECTO Y ESPERA ---
+    const precioKm = km * tarifa.perKm;
+    const precioEspera = tarifa.perHourWait * (minutos / 60);
+    
+    totalAcumulado += precioKm + precioEspera;
 
-  // 3. DESGLOSE DEL IVA (Extracción del 10%)
-  // Fórmula: Base = Total / 1.10 | IVA = Total - Base
-  const base = totalCalculado / (1 + IVA_PORCENTAJE);
-  const iva = totalCalculado - base;
+    // --- APLICAR MÍNIMOS DE PERCEPCIÓN ---
+    const horario = document.querySelector("input[name='horario']:checked").value;
+    const minimoLegal = minPercepcion[horario];
 
-  // 4. Actualizar Interfaz
-  if ($("factura")) $("factura").classList.remove("hidden");
-  if ($("placeholder")) $("placeholder").classList.add("hidden");
+    if (totalAcumulado < minimoLegal) {
+        totalAcumulado = minimoLegal;
+    }
 
-  $("factLocalidad").textContent = loc.name;
-  $("factTarifa").textContent = `Tarifa ${tarifaId}`;
-  $("factKm").textContent = `${km.toFixed(2)} km`;
-  
-  $("factBase").textContent = fmt(base);
-  $("factIVA").textContent = fmt(iva);
-  $("factTotal").textContent = fmt(totalCalculado);
+    // --- DESGLOSE FINAL DEL IVA (Extracción) ---
+    // Tomamos el total final y extraemos la base dividiendo por 1.10
+    const baseImponible = totalAcumulado / 1.10;
+    const cuotaIVA = totalAcumulado - baseImponible;
 
-  // 5. Guardar para Ticket y Hoja de Ruta
-  const data = { 
-    tarifaId, 
-    km, 
-    minutos, 
-    loc, 
-    base: base.toFixed(2), 
-    iva: iva.toFixed(2), 
-    total: totalCalculado.toFixed(2) 
-  };
+    // --- ACTUALIZAR INTERFAZ ---
+    if ($("factura")) $("factura").classList.remove("hidden");
+    if ($("placeholder")) $("placeholder").classList.add("hidden");
 
-  localStorage.setItem("ultimoServicio", JSON.stringify(data));
-  localStorage.setItem("origenServicio", loc.name);
+    $("factLocalidad").textContent = loc.name;
+    $("factTarifa").textContent = `Tarifa ${tarifaId}`;
+    $("factKm").textContent = `${km.toFixed(2)} km`;
+    
+    // Mostramos el desglose en el resumen
+    $("factBase").textContent = fmt(baseImponible);
+    $("factIVA").textContent = fmt(cuotaIVA);
+    $("factTotal").textContent = fmt(totalAcumulado);
 
-  return data;
+    // --- GUARDAR PARA OTROS MÓDULOS ---
+    const data = { 
+        tarifaId, 
+        km, 
+        minutos, 
+        loc, 
+        base: baseImponible.toFixed(2), 
+        iva: cuotaIVA.toFixed(2), 
+        total: totalAcumulado.toFixed(2) 
+    };
+
+    localStorage.setItem("ultimoServicio", JSON.stringify(data));
+    localStorage.setItem("origenServicio", loc.name);
+
+    return data;
 }
 
 /********************************
- * EVENTOS
+ * EVENTOS Y DISPARADORES
  ********************************/
-localidadSelect.addEventListener("change", () => {
-  gestionarEstadoHorario();
-  calcularServicio();
-});
+localidadSelect.addEventListener("change", calcularServicio);
 
 [$("km"), $("minutos")].forEach(el => {
-  el.addEventListener('input', calcularServicio);
+    if (el) el.addEventListener('input', calcularServicio);
 });
 
 document.querySelectorAll("input[name='tarifa'], input[name='horario']").forEach(el => {
-  el.addEventListener('change', calcularServicio);
+    el.addEventListener('change', calcularServicio);
 });
 
-$("limpiarBtn").addEventListener("click", ()=>{
-  localidadSelect.value = "";
-  $("km").value = "";
-  $("minutos").value = "";
-  document.querySelector("input[name='tarifa'][value='1']").checked = true;
-  document.querySelector("input[name='horario'][value='diurno']").checked = true;
-  
-  if($("factura")) $("factura").classList.add("hidden");
-  if($("placeholder")) $("placeholder").classList.remove("hidden");
-  
-  localStorage.clear();
-  gestionarEstadoHorario();
-});
+if ($("limpiarBtn")) {
+    $("limpiarBtn").addEventListener("click", () => {
+        localidadSelect.value = "";
+        $("km").value = "";
+        $("minutos").value = "";
+        document.querySelector("input[name='tarifa'][value='1']").checked = true;
+        document.querySelector("input[name='horario'][value='diurno']").checked = true;
+        
+        if ($("factura")) $("factura").classList.add("hidden");
+        if ($("placeholder")) $("placeholder").classList.remove("hidden");
+        
+        localStorage.clear();
+    });
+}
 
-// Inicialización
-gestionarEstadoHorario();
+// Inicialización al cargar el script
+inicializarLocalidades();
